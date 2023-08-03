@@ -32,9 +32,9 @@ kubectl get node -o wide
 
 ### 3.1. Namespaceの作成
 
-Kubernetesのハンズオンは、1つのKubernetesクラスターを共有しネームスペースによってリソースを隔離します。各ユーザーようにそれぞれのLinux VMのインスタンスIDを利用してネームスペースを作成します。
+Kubernetesのハンズオンは、1つのKubernetesクラスターを共有しネームスペースによってリソースを隔離します。各ユーザー用にそれぞれのLinux VMのホスト名を利用してネームスペースを作成します。
 
-インスタンスIDが`NS`環境変数に設定されていることを確認します。(インスタンスIDをは「i-」をプリフィックスとし、17文字で構成されます。例 : i-0f023aeb66bc1aeac)
+ホスト名が`NS`環境変数に設定されていることを確認します。
 
 ```bash
 echo $NS
@@ -90,7 +90,7 @@ Pod作成用のマニフェストの内容を確認します。
 cat pod.yaml
 ```
 
-マニフェストの中身は以下のとおりです。Docker Hubにある`netonesystems/nginx:0.1`をコンテナイメージとして指定し、nginxという名前でPodを作成します。
+マニフェストの中身は以下のとおりです。Private Registryにある`harbor.nsx.techlab.netone.co.jp/handson/nginx:0.1`をコンテナイメージとして指定し、nginxという名前でPodを作成します。
 
 ```yaml
 apiVersion: v1
@@ -101,7 +101,7 @@ metadata:
   name: nginx
 spec:
   containers:
-  - image: netonesystems/nginx:1.0
+  - image: harbor.nsx.techlab.netone.co.jp/handson/nginx:1.0
     name: nginx
 ```
 
@@ -246,7 +246,7 @@ kubectl get pod -o wide
 DeploymentではReplicaSetのバージョンを管理することが可能です。Deploymentで利用するイメージを更新します。
 
 ```bash
-kubectl set image deploy nginx nginx=netonesystems/nginx:2.0
+kubectl set image deploy nginx nginx=harbor.nsx.techlab.netone.co.jp/handson/nginx:2.0
 ```
 
 上記コマンド実行後に速やかにPodの状態を確認すると、`Terminating`と`Running`のPodが混在しいる様子を確認することが可能です。

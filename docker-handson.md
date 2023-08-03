@@ -14,9 +14,9 @@ cat /etc/lsb-release
 
 ```
 DISTRIB_ID=Ubuntu
-DISTRIB_RELEASE=20.04
-DISTRIB_CODENAME=focal
-DISTRIB_DESCRIPTION="Ubuntu 20.04.5 LTS"
+DISTRIB_RELEASE=22.04
+DISTRIB_CODENAME=jammy
+DISTRIB_DESCRIPTION="Ubuntu 22.04.2 LTS"
 ```
 
 ### 1-2. ネットワークの確認
@@ -24,18 +24,19 @@ DISTRIB_DESCRIPTION="Ubuntu 20.04.5 LTS"
 `ip address`コマンドでNICのアドレスを確認します。
 
 ```bash
-$ ip a
+$  ip a
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host 
+    inet6 ::1/128 scope host
        valid_lft forever preferred_lft forever
-2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc fq_codel state UP group default qlen 1000
-    link/ether 06:a9:60:0e:f1:35 brd ff:ff:ff:ff:ff:ff
-    inet 10.0.1.135/24 brd 10.0.1.255 scope global dynamic eth0
-       valid_lft 3482sec preferred_lft 3482sec
-    inet6 fe80::4a9:60ff:fe0e:f135/64 scope link 
+2: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:50:56:ae:8d:b2 brd ff:ff:ff:ff:ff:ff
+    altname enp11s0
+    inet 10.44.149.23/21 metric 100 brd 10.44.151.255 scope global dynamic ens192
+       valid_lft 691002sec preferred_lft 691002sec
+    inet6 fe80::250:56ff:feae:8db2/64 scope link
        valid_lft forever preferred_lft forever
 ```
 
@@ -46,17 +47,17 @@ CPUを確認します。インスタンスにはCPUは1つのみ搭載されて�
 ```bash
 $ cat /proc/cpuinfo | head -n5
 processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 63
-model name      : Intel(R) Xeon(R) CPU E5-2676 v3 @ 2.40GHz
+vendor_id       : AuthenticAMD
+cpu family      : 23
+model           : 49
+model name      : AMD EPYC 7502P 32-Core Processor
 ```
 
 メモリーを確認します。メモリーは1GiBで構成されています。
 
 ```bash
 $ cat /proc/meminfo | grep MemTotal
-MemTotal:         997108 kB
+MemTotal:        2010852 kB
 ```
 
 ## 2. dockerのインストール
@@ -96,7 +97,8 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docke
 dockerリポジトリが追加されていることを確認します。
 
 ```bash
-cat /etc/apt/sources.list.d/docker.list
+$ cat /etc/apt/sources.list.d/docker.list
+deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu jammy stable
 ```
 
 ### 2-3. インストール
@@ -126,9 +128,9 @@ ps aux | grep container
 プロセスとして`containerd`と`dockerd`が起動していることが確認できます。
 
 ```bash
-root        2568  0.2  4.3 1200096 42824 ?       Ssl  08:40   0:00 /usr/bin/containerd
-root        2713  0.1  6.5 1224444 64824 ?       Ssl  08:40   0:00 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
-ubuntu      3750  0.0  0.0   8168   656 pts/0    S+   08:41   0:00 grep --color=auto container
+root        2615  0.1  2.1 1283200 42716 ?       Ssl  23:37   0:00 /usr/bin/containerd
+root        2785  0.2  3.7 1318908 75796 ?       Ssl  23:37   0:00 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+ubuntu      2988  0.0  0.1   7004  2212 pts/0    S+   23:38   0:00 grep --color=auto container
 ```
 
 インターフェースを確認します。
@@ -144,16 +146,17 @@ ip address
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host 
+    inet6 ::1/128 scope host
        valid_lft forever preferred_lft forever
-2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc fq_codel state UP group default qlen 1000
-    link/ether 06:a9:60:0e:f1:35 brd ff:ff:ff:ff:ff:ff
-    inet 10.0.1.135/24 brd 10.0.1.255 scope global dynamic eth0
-       valid_lft 3274sec preferred_lft 3274sec
-    inet6 fe80::4a9:60ff:fe0e:f135/64 scope link 
+2: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:50:56:ae:8d:b2 brd ff:ff:ff:ff:ff:ff
+    altname enp11s0
+    inet 10.44.149.23/21 metric 100 brd 10.44.151.255 scope global dynamic ens192
+       valid_lft 689238sec preferred_lft 689238sec
+    inet6 fe80::250:56ff:feae:8db2/64 scope link
        valid_lft forever preferred_lft forever
-3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default 
-    link/ether 02:42:33:2f:56:0c brd ff:ff:ff:ff:ff:ff
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether 02:42:b3:1e:29:8e brd ff:ff:ff:ff:ff:ff
     inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
        valid_lft forever preferred_lft forever
 ```
@@ -167,16 +170,20 @@ docker info
 Clientの情報は出力されますが、Server側の情報がエラーとなって確認することができません。これはdockerユーザーグループに所属していないユーザーが、dockerを利用することができないためです。
 
 ```bash
-Client:
+Client: Docker Engine - Community
+ Version:    24.0.5
  Context:    default
  Debug Mode: false
  Plugins:
-  app: Docker App (Docker Inc., v0.9.1-beta3)
-  buildx: Docker Buildx (Docker Inc., v0.10.0-docker)
-  scan: Docker Scan (Docker Inc., v0.23.0)
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.11.2
+    Path:     /usr/libexec/docker/cli-plugins/docker-buildx
+  compose: Docker Compose (Docker Inc.)
+    Version:  v2.20.2
+    Path:     /usr/libexec/docker/cli-plugins/docker-compose
 
 Server:
-ERROR: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/info": dial unix /var/run/docker.sock: connect: permission denied
+ERROR: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/info": dial unix /var/run/docker.sock: connect: permission denied
 errors pretty printing info
 ```
 
@@ -205,7 +212,7 @@ id
 dockerユーザーグループに所属していることが確認できます。
 
 ```bash
-uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),4(adm),20(dialout),24(cdrom),25(floppy),27(sudo),29(audio),30(dip),44(video),46(plugdev),118(netdev),119(lxd),998(docker)
+uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),4(adm),20(dialout),24(cdrom),25(floppy),27(sudo),29(audio),30(dip),44(video),46(plugdev),119(netdev),120(lxd),999(docker)
 ```
 
 ### 2-6. 確認
@@ -214,13 +221,17 @@ uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),4(adm),20(dialout),24(cdro
 
 ```bash
 $ docker info
-Client:
+Client: Docker Engine - Community
+ Version:    24.0.5
  Context:    default
  Debug Mode: false
  Plugins:
-  app: Docker App (Docker Inc., v0.9.1-beta3)
-  buildx: Docker Buildx (Docker Inc., v0.10.0-docker)
-  scan: Docker Scan (Docker Inc., v0.23.0)
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.11.2
+    Path:     /usr/libexec/docker/cli-plugins/docker-buildx
+  compose: Docker Compose (Docker Inc.)
+    Version:  v2.20.2
+    Path:     /usr/libexec/docker/cli-plugins/docker-compose
 
 Server:
  Containers: 0
@@ -228,30 +239,49 @@ Server:
   Paused: 0
   Stopped: 0
  Images: 0
- Server Version: 20.10.23
-... snip
+ Server Version: 24.0.5
+
 ```
 
-
-
-> ここまでで、Ubuntu Linuxに対するdockerのインストールが完了し、dockerの利用が可能になりました。
+ここまでで、Ubuntu Linuxに対するdockerのインストールが完了し、dockerの利用が可能になりました。
 
 
 
 ## 3. dockerの利用
 
-### 3-1. コンテナイメージの取得
+### 3-1 . Docker Hubへのログイン
+
+>  本ハンズオンではDocker Hubのアカウントを利用してDocker Hubに対してコンテナイメージをダウンロード・アップロードします。Docker Hubのアカウントを持っていない場合は[こちら](https://hub.docker.com/signup)から登録してDocker IDを取得してください。
+
+Docker Hubは無償で利用することができるコンテナレジストリです。ユーザーのアカウントタイプに応じて、コンテナイメージのダウンロード(pull) には制限があります。制限は接続元のIPアドレスに基づきます。 匿名ユーザーの場合、1つのIPアドレスにつき、6時間ごとに100 pullに設定されています。 認証されているユーザーの場合は、6 時間ごとに200プルです。有償のDockerサブスクリプションのユーザーには制限はありません。
+
+`docker login`コマンドでレジストリにログインします。レジストリを指定しない場合は、Docker Hubに対するログインになります。(プライベートレジストリにログインする場合は、`docker login registry.netone.co.jp`のようにレジストリを指定します。)
+
+```bash
+$ docker login
+Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Username: [username]
+Password: *********
+WARNING! Your password will be stored unencrypted in /home/ubuntu/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+```
+
+### 3-2. コンテナイメージの取得
 
 コンテナイメージは[Docker Hub](https://hub.docker.com/search?type=image)などのレジストリにあるものを利用可能です。`docker search`コマンドを利用すると、Docker Hub上にあるコンテナイメージを検索することが可能です。
 
 ```bash
 $ docker search centos
-NAME                              DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
-centos                            The official build of CentOS.                   6856      [OK]
-ansible/centos7-ansible           Ansible on Centos7                              135                  [OK]
-consol/centos-xfce-vnc            Centos container with "headless" VNC session…   131                  [OK]
-jdeathe/centos-ssh                OpenSSH / Supervisor / EPEL/IUS/SCL Repos - …   121                  [OK]
-centos/systemd                    systemd enabled base container.                 105                  [OK]
+NAME                                         DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+centos                                       DEPRECATED; The official build of CentOS.       7621      [OK]
+kasmweb/centos-7-desktop                     CentOS 7 desktop for Kasm Workspaces            39
+bitnami/centos-base-buildpack                Centos base compilation image                   0                    [OK]
+couchbase/centos7-systemd                    centos7-systemd images with additional debug…   8                    [OK]
+continuumio/centos5_gcc5_base                                                                3
+... snip
 ```
 
 `docker pull`コマンドdで`centos`コンテナイメージを取得します。
@@ -260,12 +290,18 @@ centos/systemd                    systemd enabled base container.               
 docker pull centos
 ```
 
+以下のエラーが表示された場合、Docker Hubへのログインが正常にできていない可能性がありますので「Docker Hubへのログイン」を再度確認してください。
+
+```bash
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+```
+
 Docker Hubからコンテナイメージがダウンロードされます。
 
 ```bash
 Using default tag: latest
 latest: Pulling from library/centos
-a1d0c7532777: Pull complete 
+a1d0c7532777: Pull complete
 Digest: sha256:a27fd8080b517143cbbbab9dfb7c8571c40d67d534bbdee55bd6c473f432b177
 Status: Downloaded newer image for centos:latest
 docker.io/library/centos:latest
@@ -281,7 +317,7 @@ docker images
 
 ```
 REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
-centos       latest    5d0da3dc9764   16 months ago   231MB
+centos       latest    5d0da3dc9764   22 months ago   231MB
 ```
 
 [Docker HubのcentosのページのTags](https://hub.docker.com/_/centos?tab=tags)をブラウザで開いて確認するとcentosを確認すると、latest以外にもたくさんのタグがあります。
@@ -303,14 +339,14 @@ docker pull centos:8
 ```bash
 $ docker images
 REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
-centos       7         eeb6ee3f44bd   16 months ago   204MB
-centos       8         5d0da3dc9764   16 months ago   231MB
-centos       latest    5d0da3dc9764   16 months ago   231MB
+centos       7         eeb6ee3f44bd   22 months ago   204MB
+centos       8         5d0da3dc9764   22 months ago   231MB
+centos       latest    5d0da3dc9764   22 months ago   231MB
 ```
 
 3種類のコンテナイメージをpullしましたが、`centos:latest`と`centos:8`は同じIMAGE IDを持っています。これは、2つのコンテナイメージの実体が同一であり、1つのコンテナイメージに2つのタグが付与されていることを意味しています。
 
-### 3-2. コンテナの起動
+### 3-3. コンテナの起動
 
 コンテナを起動するには`docker run`コマンドを利用します。以下のコマンドで、`centos:7`イメージを利用してコンテナ内のbashを起動します。
 
@@ -320,7 +356,7 @@ docker run -it centos:7 bash
 
 コマンドプロンプトが変更されたことが確認できます。
 
-### 3-3. コンテナ内の確認
+### 3-4. コンテナ内の確認
 
 dockerを実行しているホストはUbuntu Linuxでしたが、今回起動したコンテナは`centos:7`を利用してます。コンテナ内で`/etc/redhat-release`を確認すると`CentOS Linux release 7.9.2009 (Core)`として実行されていることを確認できます。
 
@@ -342,12 +378,12 @@ cat /etc/redhat-release
 ```bash
 # cat /proc/cpuinfo | head -n5
 processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 63
-model name      : Intel(R) Xeon(R) CPU E5-2676 v3 @ 2.40GHz
+vendor_id       : AuthenticAMD
+cpu family      : 23
+model           : 49
+model name      : AMD EPYC 7502P 32-Core Processor
 # cat /proc/meminfo | grep MemTotal
-MemTotal:         997108 kB
+MemTotal:        2010852 kB
 ```
 
 コンテナ内のネットワークの状態を確認するため、コンテナにiprouteをインストールします。
@@ -369,7 +405,7 @@ ip address
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-4: eth0@if5: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+4: eth0@if5: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
     link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 172.17.0.2/16 brd 172.17.255.255 scope global eth0
        valid_lft forever preferred_lft forever
@@ -381,7 +417,7 @@ ip address
 
 ```bash
 # ip route
-default via 172.17.0.1 dev eth0 
+default via 172.17.0.1 dev eth0
 172.17.0.0/16 dev eth0 proto kernel scope link src 172.17.0.2
 ```
 
@@ -419,14 +455,14 @@ $ sudo iptables-save | grep MASQUERADE
 -A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE
 ```
 
-### 3-4. コンテナの実行状態と削除
+### 3-5. コンテナの実行状態と削除
 
 `docker ps`コマンドで実行中のコンテナを一覧表示することが可能です。ここまでで実行したコンテナはbashを起動するものだったため、「exit」コマンドによりコンテナの実行は終了していますが、Exit状態でLinuxホスト内に残存しています。実行が終了したコンテナは`docker ps -a`コマンドで出力することが可能です。
 
 ```bash
 $ docker ps -a
 CONTAINER ID   IMAGE      COMMAND   CREATED         STATUS                      PORTS     NAMES
-e193037a2753   centos:7   "bash"    2 minutes ago   Exited (0) 21 seconds ago             eloquent_gates
+fdbfc947af81   centos:7   "bash"    2 minutes ago   Exited (0) 18 seconds ago             dreamy_bhabha
 ```
 
 終了したコンテナの実行環境をLinuxホストから削除するには、`docker rm`コマンドを利用します。(`docker ps -qa`は終了したコンテナのCONTAINER IDのみを出力するコマンドです)
@@ -441,7 +477,7 @@ docker rm $(docker ps -aq)
 docker ps -a
 ```
 
-### 3-5. コンテナのリソース制限
+### 3-6. コンテナのリソース制限
 
 コンテナ起動時のオプションでCPUやメモリー等のリソースの制限が可能です。
 
@@ -462,7 +498,7 @@ docker ps -a
 
 - [Runtime options with Memory, CPUs, and GPUs](https://docs.docker.com/config/containers/resource_constraints/)
 
-### 3-6. コンテナのバックグラウンド起動
+### 3-7. コンテナのバックグラウンド起動
 
 
 コンテナをバックグラウンドで起動してみます。 (-dオプション) バックグラウンドで起動しているため、docker run実行後もホストのシェルのままになります。```--name```オプションにより、コンテナに任意の名前をつけることが可能です。
@@ -487,7 +523,7 @@ docker attach mycentos
 
 *** ```Ctrl+p, Ctrl+q```と入力して、コンテナのシェルから切断します。*** (切断しないと以降のハンズオンが正しく動作しません)
 
-### 3-7. Linuxホストのネットワーク確認
+### 3-8. Linuxホストのネットワーク確認
 
 コンテナが利用するネットワークの状態を確認します。Linuxホスト上ではコンテナ向けにvethペアが作成され、片方はdocker0ブリッジに接続されます。このvethはLinuxホスト上の`ip address`コマンドで確認することが可能です。(veth〜のIDは環境によって異なります。)
 
@@ -497,23 +533,23 @@ $ ip address
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host 
+    inet6 ::1/128 scope host
        valid_lft forever preferred_lft forever
-2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc fq_codel state UP group default qlen 1000
-    link/ether 06:a9:60:0e:f1:35 brd ff:ff:ff:ff:ff:ff
-    inet 10.0.1.135/24 brd 10.0.1.255 scope global dynamic eth0
-       valid_lft 2675sec preferred_lft 2675sec
-    inet6 fe80::4a9:60ff:fe0e:f135/64 scope link 
+2: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:50:56:ae:8d:b2 brd ff:ff:ff:ff:ff:ff
+    inet 10.44.149.23/21 metric 100 brd 10.44.151.255 scope global dynamic ens192
+       valid_lft 679747sec preferred_lft 679747sec
+    inet6 fe80::250:56ff:feae:8db2/64 scope link
        valid_lft forever preferred_lft forever
-3: docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
-    link/ether 02:42:33:2f:56:0c brd ff:ff:ff:ff:ff:ff
+3: docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether 02:42:b3:1e:29:8e brd ff:ff:ff:ff:ff:ff
     inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
        valid_lft forever preferred_lft forever
-    inet6 fe80::42:33ff:fe2f:560c/64 scope link 
+    inet6 fe80::42:b3ff:fe1e:298e/64 scope link
        valid_lft forever preferred_lft forever
-7: veth35e91f5@if6: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue master docker0 state UP group default 
-    link/ether ae:70:6c:c2:67:e3 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet6 fe80::ac70:6cff:fec2:67e3/64 scope link 
+7: veth4d347a7@if6: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue master docker0 state UP group default
+    link/ether c6:ac:59:03:ef:16 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet6 fe80::c4ac:59ff:fe03:ef16/64 scope link
        valid_lft forever preferred_lft forever
 ```
 
@@ -521,7 +557,7 @@ docker0がブリッジとして存在しており、コンテナ向けのvethが
 
 ```bash
 $ bridge link show
-7: veth35e91f5@if6: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master docker0 state forwarding priority 32 cost 2 
+7: veth4d347a7@if6: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master docker0 state forwarding priority 32 cost 2
 ```
 
 vethペアのもう片方にはコンテナが接続されます。コンテナが接続されているvethのペアはネットワークネームスペースを利用して隔離されています。
@@ -534,13 +570,13 @@ $ sudo nsenter --net=$(sudo find /var/run/docker/netns/ -type f) ip address
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-6: eth0@if7: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+6: eth0@if7: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
     link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     inet 172.17.0.2/16 brd 172.17.255.255 scope global eth0
        valid_lft forever preferred_lft forever
 ```
 
-### 3-8. コンテナのポート公開
+### 3-9. コンテナのポート公開
 
 コンテナはdocker0ブリッジに接続され、外部から接続できなIPアドレスが割り当てられるため、Webサーバーのような外部に公開したいコンテナの場合は、外部に公開するポートを指定する事が可能です。nginxコンテナを80番ポートで接続できるように公開してみます。
 
@@ -550,14 +586,7 @@ docker run -p 80:80 --name nginx -d nginx:alpine
 
 ローカルPCのブラウザを開き、ハンズオン環境のLinuxホストのIPアドレスの80番ポートにアクセスしてコンテナにアクセスできることを確認します。
 
-> ハンズオン環境で利用しているLinuxホストのグローバルIPアドレスはLinuxホスト内でifconfig.ioにcurlすることで確認可能です。
->
-> ```bash
-> $ curl ifconfig.io
-> 18.183.254.164
-> ```
-
-![image-20211129202632734](docker-handson.assets/image-20211129202632734.png)
+![image-20230803112613696](./docker-handson.assets/image-20230803112613696.png)
 
 コンテナにアクセスできることを確認したら、起動したコンテナを停止・削除します。
 
@@ -565,7 +594,7 @@ docker run -p 80:80 --name nginx -d nginx:alpine
 docker rm -f nginx
 ```
 
-### 3-9. ボリュームのマウント
+### 3-10. ボリュームのマウント
 
 コンテナ起動中にコンテナ内のディスクに書き込まれたデータはコンテナを削除するのと同時に、削除されます。データを永続化するために、Linuxホストのディスク領域をコンテナにマウントすることが可能です。
 
@@ -586,7 +615,7 @@ docker run -tid --name nginx -p 80:80 -v $PWD:/usr/share/nginx/html nginx:alpine
 
 再度ブラウザでアクセスすると、dateコマンドの出力が表示されます。
 
-![image-20211129202737304](docker-handson.assets/image-20211129202737304.png)
+![image-20230803112057985](./docker-handson.assets/image-20230803112057985.png)
 
 index.htmlファイルにdateコマンドの結果を追加してindex.htmlの内容を更新します。
 
@@ -597,9 +626,9 @@ cat index.html
 
 ブラウザをリロードすると追記したタイムスタンプが表示され、index.htmlの変更内容がコンテナ内から認識されていることが確認できます。
 
-![image-20211129202805103](docker-handson.assets/image-20211129202805103.png)
+![image-20230803112150526](./docker-handson.assets/image-20230803112150526.png)
 
-### 3-10. コンテナのログ
+### 3-11. コンテナのログ
 
 コンテナ内で起動するアプリケーションのログは`docker logs`コマンドで確認することが可能です。
 
@@ -639,7 +668,7 @@ docker exec nginx ls -l /var/log/nginx/error.log
 docker rm -f nginx
 ```
 
-### 3-11. コンテナイメージのビルド
+### 3-12. コンテナイメージのビルド
 
 Dockerfileを作成して、コンテナイメージを作成します。以下の内容で`$HOME/contents/Dockerfile`を作成します。COPYコマンドで`$HOME/contents/index.html`を`/var/www/html`にコピーしています。
 
@@ -691,7 +720,7 @@ Mon Nov 29 11:26:59 UTC 2021
 Mon Nov 29 11:27:46 UTC 2021
 ```
 
-### 3-12. コンテナイメージの確認
+### 3-13. コンテナイメージの確認
 
 コンテナイメージのビルドはDockerfileに指定された内容を順番に実行していき、各行に対して1つのレイヤーを作成します。Dockerfileの行数を減らすことでイメージ数を削減可能です。パッケージマネージャを利用してソフトウェアをインストールする場合、同じ命令内パッケージマネージャが生成する一時ファイルやキャッシュを削除することで、コンテナイメージを小さくすることも可能です。
 
@@ -704,18 +733,18 @@ docker history mynginx
 コンテナイメージを構成するレイヤーを確認することが可能です。
 
 ```bash
-IMAGE          CREATED         CREATED BY                                      SIZE      COMMENT
-e12600bddfdc   3 minutes ago   CMD ["/usr/sbin/nginx" "-g" "daemon off;"]      0B        buildkit.dockerfile.v0
-<missing>      3 minutes ago   EXPOSE map[80/tcp:{}]                           0B        buildkit.dockerfile.v0
-<missing>      3 minutes ago   COPY index.html /var/www/html/ # buildkit       58B       buildkit.dockerfile.v0
-<missing>      3 minutes ago   RUN /bin/sh -c ln -sf /dev/stdout /var/log/n…   0B        buildkit.dockerfile.v0
-<missing>      3 minutes ago   RUN /bin/sh -c apt-get update && apt-get ins…   55.6MB    buildkit.dockerfile.v0
-<missing>      13 days ago     /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B        
-<missing>      13 days ago     /bin/sh -c #(nop) ADD file:18e71f049606f6339…   77.8MB    
-<missing>      13 days ago     /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B        
-<missing>      13 days ago     /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B        
-<missing>      13 days ago     /bin/sh -c #(nop)  ARG LAUNCHPAD_BUILD_ARCH     0B        
-<missing>      13 days ago     /bin/sh -c #(nop)  ARG RELEASE                  0B  
+IMAGE          CREATED          CREATED BY                                      SIZE      COMMENT
+d01e1455ab3c   28 seconds ago   CMD ["/usr/sbin/nginx" "-g" "daemon off;"]      0B        buildkit.dockerfile.v0
+<missing>      28 seconds ago   EXPOSE map[80/tcp:{}]                           0B        buildkit.dockerfile.v0
+<missing>      28 seconds ago   COPY index.html /var/www/html/ # buildkit       58B       buildkit.dockerfile.v0
+<missing>      28 seconds ago   RUN /bin/sh -c ln -sf /dev/stdout /var/log/n…   0B        buildkit.dockerfile.v0
+<missing>      28 seconds ago   RUN /bin/sh -c apt-get update && apt-get ins…   55.6MB    buildkit.dockerfile.v0
+<missing>      5 weeks ago      /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B
+<missing>      5 weeks ago      /bin/sh -c #(nop) ADD file:140fb5108b4a2861b…   77.8MB
+<missing>      5 weeks ago      /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B
+<missing>      5 weeks ago      /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B
+<missing>      5 weeks ago      /bin/sh -c #(nop)  ARG LAUNCHPAD_BUILD_ARCH     0B
+<missing>      5 weeks ago      /bin/sh -c #(nop)  ARG RELEASE                  0B
 ```
 
 起動したmynginxコンテナを停止して削除します。
@@ -728,23 +757,7 @@ docker rm -f mynginx
 
 コンテナイメージはDocker Hubのようなレジストリにアップロードして共有することが可能です。レジストリへアップロードする際はコンテナイメージ名にレジストリ名を含めます。
 
-> 本ハンズオンではDocker Hubのアカウントを利用してDocker Hubにコンテナイメージをアップロードします。Docker Hubのアカウントを持っていない場合は[こちら](https://hub.docker.com/signup)から登録してDocker IDを取得してください。
-
-`docker login`コマンドでレジストリにログインします。レジストリを指定しない場合は、Docker Hubに対するログインになります。(プライベートレジストリにログインする場合は、`docker login registry.netone.co.jp`のようにレジストリを指定します。)
-
-```bash
-$ docker login
-Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
-Username: [username]
-Password: *********
-WARNING! Your password will be stored unencrypted in /home/ubuntu/.docker/config.json.
-Configure a credential helper to remove this warning. See
-https://docs.docker.com/engine/reference/commandline/login/#credentials-store
-
-Login Succeeded
-```
-
-Docker Hubのユーザー名を環境変数`$DOCKERID`として設定します。
+自身で登録したDocker Hubのユーザー名を環境変数`$DOCKERID`として設定します。
 
 ```bash
 export DOCKERID=[ユーザ名]

@@ -27,7 +27,7 @@ metadata:
   name: env-test1
 spec:
   containers:
-  - image: busybox
+  - image: harbor.nsx.techlab.netone.co.jp/handson/busybox:latest
     command: ["/bin/sh"]
     args: ["-c", "while true; do echo $(MESSAGE); sleep 3; done"]
     name: busybox
@@ -116,7 +116,7 @@ metadata:
   name: env-test2
 spec:
   containers:
-  - image: busybox
+  - image: harbor.nsx.techlab.netone.co.jp/handson/busybox:latest
     command: ["/bin/sh"]
     args: ["-c", "while true; do echo $(MESSAGE); sleep 3; done"]
     name: busybox
@@ -220,7 +220,7 @@ metadata:
   name: env-test3
 spec:
   containers:
-  - image: busybox
+  - image: harbor.nsx.techlab.netone.co.jp/handson/busybox:latest
     command: ["/bin/sh"]
     args: ["-c", "while true; do echo username=$(USERNAME) / password=$(PASSWORD); sleep 3; done"]
     name: busybox

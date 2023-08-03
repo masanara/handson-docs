@@ -6,8 +6,9 @@
 
 ```bash
 $ kubectl get storageclass
-NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
-gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   false                  3h25m
+NAME                    PROVISIONER              RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+unity-k8s (default)     csi.vsphere.vmware.com   Delete          Immediate              true                   8d
+unity-k8s-latebinding   csi.vsphere.vmware.com   Delete          WaitForFirstConsumer   true                   8d
 ```
 
 ## 14. PersistentVolumeClaimの作成
@@ -24,7 +25,7 @@ PVC作成用のマニフェストの内容を確認します。
 cat pvc.yaml
 ```
 
-StorageClass `gp2`に対してアクセスモード ReadWriteOnce、1Giの容量のボリュームを要求します。
+StorageClass `unity-k8s`に対してアクセスモード ReadWriteOnce、1Giの容量のボリュームを要求します。
 
 ```yaml
 apiVersion: v1
@@ -37,7 +38,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  storageClassName: gp2
+  storageClassName: unity-k8s
 ```
 
 マニフェストを利用してPVCを作成します。
@@ -72,7 +73,7 @@ metadata:
 spec:
   containers:
     - name: busybox
-      image: busybox
+      image: harbor.nsx.techlab.netone.co.jp/handson/busybox:latest
       volumeMounts:
       - name: pvc
         mountPath: "/tmp/data"
@@ -210,7 +211,7 @@ spec:
       name: www
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: gp2
+      storageClassName: unity-k8s
       resources:
         requests:
           storage: 1Gi
@@ -233,13 +234,13 @@ kubectl get statefulset,pod,pvc
 ```bash
 $ kubectl get statefulset,pod,pvc
 NAME                   READY   AGE
-statefulset.apps/web   1/1     47s
+statefulset.apps/web   1/1     57s
 
-NAME                          READY   STATUS    RESTARTS   AGE
-pod/web-0                     1/1     Running   0          47s
+NAME        READY   STATUS    RESTARTS   AGE
+pod/web-0   1/1     Running   0          57s
 
 NAME                              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
-persistentvolumeclaim/www-web-0   Bound    pvc-b9bad102-c1e6-4a80-b494-b949d05e8c60   1Gi        RWO            gp2            47s
+persistentvolumeclaim/www-web-0   Bound    pvc-0774e315-e03f-4fe8-b7e7-0c91644e387e   1Gi        RWO            unity-k8s      57s
 ```
 
 ### 17.2. (Option) PVCによりデータ永続性の確認

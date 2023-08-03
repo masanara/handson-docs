@@ -13,7 +13,7 @@ CMS(Content Management System)であるWordpressをKubernetes環境で構築し�
 ### wodpress
 
 - Deployment
-  - コンテナイメージ : [wordpress:latest](https://hub.docker.com/_/wordpress)
+  - コンテナイメージ : harbor.nsx.techlab.netone.co.jp/handson/wordpress:6.2.2-php8.0-apache ([wordpress:6.2.2-php8.0-apache](https://hub.docker.com/layers/library/wordpress/6.2.2-php8.2-apache/images/sha256-47bcdee69d620e5d33795ff9b6154ba3a292440f6769a8ff2dbf645625c475fe?context=explore))
   - レプリカ数 : 1
   - 環境変数
     - データベースホスト名 : WORDPRESS_DB_HOST
@@ -27,7 +27,7 @@ CMS(Content Management System)であるWordpressをKubernetes環境で構築し�
 ### Mysql
 
 - StatefulSet
-  - コンテナイメージ : [mysql:5](https://hub.docker.com/_/mysql?tab=tags)
+  - コンテナイメージ :  harbor.nsx.techlab.netone.co.jp/handson/mysql:5.7.43 ([mysql:5.7.43](https://hub.docker.com/layers/library/mysql/5.7.43/images/sha256-aaa1374f1e6c24d73e9dfa8f2cdae81c8054e6d1d80c32da883a9050258b6e83?context=explore))
   - レプリカ数 : 1
   - 環境変数
     - 管理者パスワードの設定 : MYSQL_RANDOM_ROOT_PASSWORD
@@ -47,7 +47,7 @@ CMS(Content Management System)であるWordpressをKubernetes環境で構築し�
       ```
   - ボリューム要求
     - アクセスモード : ReadWriteOnce
-    - StorageClass : gp2
+    - StorageClass : unity-k8s
     - ストレージ容量 : 2Gi
   
 - Service
