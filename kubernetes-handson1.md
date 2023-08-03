@@ -183,7 +183,7 @@ Deployment作成用のマニフェストの内容を確認します。
 cat deployment.yaml
 ```
 
-マニフェストの中身は以下のとおりです。nginxという名前でDeploymentを作成します。DeploymentはDocker Hubにある`netonesystems/nginx:1.0`をコンテナイメージとて、`replicas :3`が指定されているため3つのPodを起動します。
+マニフェストの中身は以下のとおりです。nginxという名前でDeploymentを作成します。DeploymentはPrivate Registryにある`harbor.nsx.techlab.netone.co.jp/handson/nginx:0.1`をコンテナイメージとして、`replicas :3`が指定されているため3つのPodを起動します。
 
 ```yaml
 apiVersion: apps/v1
@@ -203,7 +203,7 @@ spec:
         app: nginx
     spec:
       containers:
-      - image: netonesystems/nginx:1.0
+      - image: harbor.nsx.techlab.netone.co.jp/handson/nginx:1.0
         name: nginx
 ```
 

@@ -47,7 +47,7 @@ spec:
 kubectl apply -f pvc.yaml
 ```
 
-作成したPVCを確認すると、`Pending`状態となっています。これはStorageClass : gp2のVolumeBindingModeがWaitForFirstConsumerとして構成されているため、PVCを利用するPodが作成されるタイミングでPVCがプロビジョニングされるためです。
+作成したPVCを確認すると、`BOUND`状態となっています。これはStorageClass : unity-k8sのVolumeBindingModeがImmediateとして構成されているため、PVCリソース作成のタイミングで、PVがプロビジョニングされるためです。
 
 ```bash
 kubectl get pvc

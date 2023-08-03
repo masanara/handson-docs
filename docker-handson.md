@@ -240,7 +240,7 @@ Server:
   Stopped: 0
  Images: 0
  Server Version: 24.0.5
-
+... snip
 ```
 
 ここまでで、Ubuntu Linuxに対するdockerのインストールが完了し、dockerの利用が可能になりました。

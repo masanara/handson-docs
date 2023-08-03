@@ -60,13 +60,14 @@ Serviceをdescribeして詳細情報を表示します。Endpointsとして2つ�
 kubectl describe service nginx
 ```
 
-出力内容の例 : Podは192.168.27.68と192.168.39.143として起動しており、Endpointsとして各PodのIPアドレスが登録されています。
+出力内容の例 : Podは`100.96.1.18`と`100.96.4.7`として起動しており、ServiceのEndpointsとして各PodのIPアドレスが登録されています。
 
 ```bash
 $ kubectl get pod -o wide
 NAME                     READY   STATUS    RESTARTS   AGE   IP            NODE                                   NOMINATED NODE   READINESS GATES
 nginx-797d75b55b-b6wbc   1/1     Running   0          12m   100.96.1.18   tkc01-workers-7rdsp-77c6f677f9-db9gc   <none>           <none>
 nginx-797d75b55b-mcmkd   1/1     Running   0          12m   100.96.4.7    tkc01-workers-7rdsp-77c6f677f9-ds2kl   <none>           <none>
+
 $ kubectl describe service nginx
 Name:              nginx
 Namespace:         handson-02
